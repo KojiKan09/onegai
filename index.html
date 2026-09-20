@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F7F5F1">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#161513">
+<title>お願い — 受け渡しメモ(モック)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ---------- tokens ---------- */
+:root {
+  --bg: #F7F5F1;
+  --surface: #FFFFFF;
+  --surface-raised: #FBFAF8;
+  --text: #1F1D1A;
+  --muted: #6B665E;
+  --border: #E4DFD7;
+  --accent: #3D5A4C;
+  --accent-soft: #E6EDE8;
+  --on-accent: #FFFFFF;
+  --positive: #2F6B4F;
+  --positive-soft: #E3EFE7;
+  --attention: #7A5314;
+  --attention-soft: #F5EAD6;
+  --rest: #6B665E;
+  --rest-soft: #EEEBE6;
+  --shadow: 0 1px 2px rgba(31, 29, 26, 0.06);
+  --scrim: rgba(31, 29, 26, 0.35);
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem;
+  --fs-amount: 1.75rem;
+  --radius: 8px;
+  --tap: 44px;
+  --sx: 24px;
+  --maxw: 560px;
+  --dur: 150ms;
+  --dur-sheet: 200ms;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161513;
+    --surface: #1F1D1A;
+    --surface-raised: #2A2723;
+    --text: #EDE9E2;
+    --muted: #A39D93;
+    --border: #3A362F;
+    --accent: #8FB3A0;
+    --accent-soft: #263B31;
+    --on-accent: #161513;
+    --positive: #7FBF9A;
+    --positive-soft: #23352B;
+    --attention: #D9A85A;
+    --attention-soft: #3A2E1A;
+    --rest: #A39D93;
+    --rest-soft: #2E2B27;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --scrim: rgba(0, 0, 0, 0.5);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161513;
+  --surface: #1F1D1A;
+  --surface-raised: #2A2723;
+  --text: #EDE9E2;
+  --muted: #A39D93;
+  --border: #3A362F;
+  --accent: #8FB3A0;
+  --accent-soft: #263B31;
+  --on-accent: #161513;
+  --positive: #7FBF9A;
+  --positive-soft: #23352B;
+  --attention: #D9A85A;
+  --attention-soft: #3A2E1A;
+  --rest: #A39D93;
+  --rest-soft: #2E2B27;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --scrim: rgba(0, 0, 0, 0.5);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur: 0ms; --dur-sheet: 0ms; }
+}
+
+/* ---------- base ---------- */
+* { box-sizing: border-box; }
+html { background: var(--bg); color: var(--text); }
+body {
+  margin: 0;
+  font-family: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  font-size: var(--fs-md);
+  line-height: 1.6;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3, p { margin: 0; }
+.amount { font-variant-numeric: tabular-nums; font-weight: 500; }
+.muted { color: var(--muted); }
+.sm { font-size: var(--fs-sm); }
+.xs { font-size: var(--fs-xs); }
+
+/* ---------- app frame ---------- */
+#app {
+  min-height: 100dvh;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+@media (min-width: 600px) {
+  #app { border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 8px var(--sx) 8px 12px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 2;
+}
+.topbar .title { font-size: var(--fs-lg); font-weight: 500; flex: 1; }
+.topbar .spacer { width: 32px; }
+.main {
+  flex: 1;
+  padding: 8px var(--sx) 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.bottom-action {
+  position: sticky;
+  bottom: 56px;
+  padding: 12px var(--sx);
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+.tabs {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tabs button {
+  flex: 1;
+  min-height: 56px;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  border-top: 2px solid transparent;
+  margin-top: -1px;
+}
+.tabs button[aria-current="page"] { color: var(--accent); border-top-color: var(--accent); font-weight: 500; }
+
+/* ---------- role switch ---------- */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px;
+  background: var(--surface);
+}
+.seg button {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 0 20px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  background: none;
+  font-size: var(--fs-md);
+  transition: opacity var(--dur), background-color var(--dur);
+}
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn-primary { background: var(--accent); color: var(--on-accent); font-weight: 500; }
+.btn-secondary { border-color: var(--border); background: var(--surface); color: var(--text); }
+.btn-text { color: var(--muted); padding: 0 12px; }
+.btn-block { width: 100%; min-height: 52px; }
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 0;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+}
+.icon { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.75; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- cards / sections ---------- */
+.section { display: flex; flex-direction: column; gap: 10px; }
+.section-title { font-size: var(--fs-sm); color: var(--muted); font-weight: 500; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card.is-rest { opacity: 0.75; }
+.card-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.row { display: flex; align-items: center; gap: 12px; }
+.row .grow { flex: 1; min-width: 0; }
+.card .item-title { font-size: var(--fs-md); font-weight: 500; }
+.card .item-amount { font-size: var(--fs-lg); }
+.tag {
+  display: inline-block;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 6px;
+  line-height: 1.5;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.pill {
+  display: inline-block;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 2px 10px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.pill-muted { background: var(--rest-soft); color: var(--muted); }
+.pill-attention { background: var(--attention-soft); color: var(--attention); }
+.pill-positive { background: var(--positive-soft); color: var(--positive); }
+.pill-rest { background: var(--rest-soft); color: var(--rest); }
+.empty { color: var(--muted); font-size: var(--fs-sm); padding: 16px 0; }
+.note-box {
+  background: var(--surface-raised);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: var(--fs-sm);
+}
+.note-box .who { color: var(--muted); font-size: var(--fs-xs); }
+
+/* ---------- reminder ---------- */
+.reminder {
+  background: var(--attention-soft);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.reminder p { font-size: var(--fs-sm); }
+.reminder .actions { display: flex; gap: 8px; }
+.reminder .btn-secondary { background: var(--surface); }
+
+/* ---------- check row ---------- */
+.checkrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--tap);
+  width: 100%;
+  padding: 4px 0;
+  background: none;
+  border: 0;
+  text-align: left;
+  border-radius: var(--radius);
+}
+.checkrow[disabled] { cursor: default; }
+.checkrow .box {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-accent);
+  flex-shrink: 0;
+  background: var(--surface);
+  transition: background-color var(--dur), border-color var(--dur);
+}
+.checkrow[aria-checked="true"] .box { background: var(--accent); border-color: var(--accent); }
+.checkrow .box .icon { width: 18px; height: 18px; opacity: 0; }
+.checkrow[aria-checked="true"] .box .icon { opacity: 1; }
+.checkrow .lbl { flex: 1; }
+.checkrow .who { color: var(--muted); font-size: var(--fs-sm); }
+.checkrow.is-mine[aria-checked="false"]:not([disabled]) .box { border-color: var(--accent); }
+
+/* ---------- forms ---------- */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: var(--fs-sm); color: var(--muted); }
+.input {
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  width: 100%;
+}
+.input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 1px var(--accent); }
+textarea.input { resize: vertical; min-height: 72px; }
+.amount-input { display: flex; align-items: center; position: relative; }
+.amount-input .yen { position: absolute; left: 12px; color: var(--muted); }
+.amount-input .input { padding-left: 32px; text-align: right; font-variant-numeric: tabular-nums; font-size: var(--fs-lg); }
+.hint { font-size: var(--fs-sm); color: var(--attention); min-height: 1.4em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--tap);
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+}
+.toggle .sw {
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--border);
+  position: relative;
+  flex-shrink: 0;
+  transition: background-color var(--dur);
+}
+.toggle .sw::after {
+  content: "";
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  border-radius: 999px;
+  background: var(--surface);
+  transition: transform var(--dur);
+}
+.toggle[aria-checked="true"] .sw { background: var(--accent); }
+.toggle[aria-checked="true"] .sw::after { transform: translateX(18px); }
+
+/* ---------- decision panel ---------- */
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--tap);
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  text-align: left;
+}
+.radio .dot {
+  width: 22px; height: 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  position: relative;
+  background: var(--surface);
+}
+.radio[aria-checked="true"] .dot { border-color: var(--accent); }
+.radio[aria-checked="true"] .dot::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.panel { display: flex; flex-direction: column; gap: 12px; }
+.divider { border: 0; border-top: 1px solid var(--border); margin: 0; }
+
+/* ---------- detail ---------- */
+.detail-head { display: flex; flex-direction: column; gap: 6px; }
+.detail-head .item-title { font-size: var(--fs-xl); font-weight: 500; }
+.detail-head .big { font-size: var(--fs-amount); }
+.detail-head .pair { display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap; }
+.timeline { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); }
+.timeline .step { display: flex; gap: 12px; }
+.timeline .step .d { color: var(--muted); min-width: 3.2em; font-variant-numeric: tabular-nums; }
+
+/* ---------- history ---------- */
+.monthnav { display: flex; align-items: center; justify-content: space-between; }
+.monthnav .lbl { font-size: var(--fs-lg); font-weight: 500; }
+.daygroup { display: flex; flex-direction: column; gap: 8px; }
+.daylabel { font-size: var(--fs-xs); color: var(--muted); }
+
+/* ---------- settings ---------- */
+.settings-group { display: flex; flex-direction: column; gap: 4px; }
+.settings-group .card { gap: 4px; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: var(--tap); }
+.setting-row .input { width: 120px; min-height: 40px; }
+
+/* ---------- sheet / toast ---------- */
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 10;
+  animation: fade var(--dur-sheet) ease-out;
+}
+.sheet {
+  width: 100%;
+  max-width: var(--maxw);
+  background: var(--surface);
+  border-radius: 16px 16px 0 0;
+  padding: 24px var(--sx) calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: up var(--dur-sheet) ease-out;
+}
+.sheet h2 { font-size: var(--fs-lg); font-weight: 500; }
+.sheet .actions { display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  z-index: 20;
+  animation: fade var(--dur) ease-out;
+  max-width: calc(100% - 32px);
+}
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes up { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+.fade-in { animation: fade var(--dur) ease-out; }
+.onboard { font-size: var(--fs-sm); color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="overlay"></div>
+<script>
+(() => {
+  'use strict';
+
+  // ---------- helpers ----------
+  const STORE_KEY = 'onegai:mock';
+  const DAY = 86400000;
+  const now = () => new Date();
+  const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+  const daysAgo = (n) => { const d = startOfDay(now()); d.setDate(d.getDate() - n); d.setHours(10, 0, 0, 0); return d.toISOString(); };
+  const firstOfMonth = (offset) => { const d = startOfDay(now()); d.setDate(1); d.setMonth(d.getMonth() + offset); d.setHours(9, 0, 0, 0); return d; };
+  const fmtDate = (iso) => { const d = new Date(iso); return `${d.getMonth() + 1}/${d.getDate()}`; };
+  const fmtYen = (n) => '¥' + Number(n || 0).toLocaleString('ja-JP');
+  const monthKey = (d) => `${d.getFullYear()}-${d.getMonth() + 1}`;
+  const monthLabel = (d) => `${d.getFullYear()}年${d.getMonth() + 1}月`;
+  const daysBetween = (iso) => (startOfDay(now()) - startOfDay(new Date(iso))) / DAY;
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const uid = () => Math.random().toString(36).slice(2, 9);
+
+  const ICON = {
+    back: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
+    plus: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    check: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
+    chevL: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
+    chevR: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+  };
+
+  // ---------- mock data ----------
+  function seedItems() {
+    const prev = firstOfMonth(-1), cur = firstOfMonth(0);
+    return [
+      { id: 'm-prev', title: `${prev.getMonth() + 1}月の生活費`, amount: 50000, monthly: true, note: '', createdAt: prev.toISOString(), decision: 'full', decidedAt: prev.toISOString(), motherTickedAt: prev.toISOString(), studentTickedAt: prev.toISOString(), motherNote: '', studentNote: '', withdrawn: false, reminderDismissed: {} },
+      { id: 'i-book', title: '教科書(統計学)', amount: 6800, monthly: false, note: '後期の必修で使います', createdAt: daysAgo(5), decision: 'full', decidedAt: daysAgo(4), motherTickedAt: daysAgo(3), studentTickedAt: null, motherNote: '', studentNote: '', withdrawn: false, reminderDismissed: {} },
+      { id: 'i-pass', title: '定期券(来月分)', amount: 12400, monthly: false, note: '', createdAt: daysAgo(2), decision: 'full', decidedAt: daysAgo(1), motherTickedAt: null, studentTickedAt: null, motherNote: '', studentNote: '', withdrawn: false, reminderDismissed: {} },
+      { id: 'i-food', title: '食費(今週分)', amount: 4500, monthly: false, note: '', createdAt: daysAgo(0), decision: null, decidedAt: null, motherTickedAt: null, studentTickedAt: null, motherNote: '', studentNote: '', withdrawn: false, reminderDismissed: {} },
+      { id: 'i-goods', title: '日用品(洗剤・シャンプー)', amount: 1980, monthly: false, note: '', createdAt: daysAgo(3), decision: 'full', decidedAt: daysAgo(3), motherTickedAt: daysAgo(2), studentTickedAt: daysAgo(2), motherNote: '', studentNote: '助かりました', withdrawn: false, reminderDismissed: {} },
+      { id: 'i-lab', title: '学費関連(実習費)', amount: 15000, approvedAmount: 10000, monthly: false, note: '来週までに事務室へ', createdAt: daysAgo(4), decision: 'partial', decidedAt: daysAgo(3), motherTickedAt: null, studentTickedAt: null, motherNote: '残りは来月に', studentNote: '', withdrawn: false, reminderDismissed: {} },
+      { id: 'i-ref', title: '参考書', amount: 3200, monthly: false, note: '', createdAt: daysAgo(6), decision: 'declined', decidedAt: daysAgo(5), motherTickedAt: null, studentTickedAt: null, motherNote: '図書館にあるか確認して', studentNote: '', withdrawn: false, reminderDismissed: {} },
+      { id: 'm-cur', title: `${cur.getMonth() + 1}月の生活費`, amount: 50000, monthly: true, note: '', createdAt: cur.toISOString(), decision: 'full', decidedAt: cur.toISOString(), motherTickedAt: null, studentTickedAt: null, motherNote: '', studentNote: '', withdrawn: false, reminderDismissed: {} },
+    ];
+  }
+  function defaultState() {
+    return {
+      role: 'student',
+      theme: 'system',
+      screen: { name: 'home' },
+      items: seedItems(),
+      settings: { showTotals: false, monthly: { enabled: true, amount: 50000, day: 1 } },
+      hist: { month: monthKey(now()), filter: 'all' },
+      draft: { title: '', amount: '', note: '' },
+      decision: { choice: null, amount: '', note: '' },
+      onboardSeen: { student: false, mother: false },
+    };
+  }
+
+  // ---------- state ----------
+  let state = load();
+  let toastTimer = null;
+  let sheet = null; // { title, body, confirmLabel, onConfirm }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) {
+        const s = JSON.parse(raw);
+        const d = defaultState();
+        return { ...d, ...s, screen: { name: 'home' }, draft: d.draft, decision: d.decision, settings: { ...d.settings, ...(s.settings || {}), monthly: { ...d.settings.monthly, ...((s.settings || {}).monthly || {}) } } };
+      }
+    } catch (e) { /* ignore */ }
+    return defaultState();
+  }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+  }
+  function ensureMonthly() {
+    const m = state.settings.monthly;
+    if (!m.enabled) return;
+    const today = now();
+    if (today.getDate() < Number(m.day || 1)) return;
+    const key = monthKey(today);
+    const exists = state.items.some((it) => it.monthly && monthKey(new Date(it.createdAt)) === key);
+    if (exists) return;
+    const d = firstOfMonth(0); d.setDate(Number(m.day || 1));
+    state.items.push({ id: 'm-' + uid(), title: `${today.getMonth() + 1}月の生活費`, amount: Number(m.amount || 0), monthly: true, note: '', createdAt: d.toISOString(), decision: 'full', decidedAt: d.toISOString(), motherTickedAt: null, studentTickedAt: null, motherNote: '', studentNote: '', withdrawn: false, reminderDismissed: {} });
+  }
+
+  // ---------- domain ----------
+  const STATUS = {
+    requested: { label: '返答待ち', cls: 'pill-muted' },
+    handover: { label: '受け渡し待ち', cls: 'pill-attention' },
+    one_ticked: { label: '確認待ち', cls: 'pill-attention' },
+    done: { label: '完了', cls: 'pill-positive' },
+    declined: { label: '見送り', cls: 'pill-rest' },
+    withdrawn: { label: '取り下げ', cls: 'pill-rest' },
+  };
+  function statusOf(it) {
+    if (it.withdrawn) return 'withdrawn';
+    if (it.decision === 'declined') return 'declined';
+    if (!it.decision) return 'requested';
+    if (it.motherTickedAt && it.studentTickedAt) return 'done';
+    if (it.motherTickedAt || it.studentTickedAt) return 'one_ticked';
+    return 'handover';
+  }
+  const handAmount = (it) => (it.decision === 'partial' ? it.approvedAmount : it.amount);
+  const byId = (id) => state.items.find((it) => it.id === id);
+  const doneAt = (it) => (it.motherTickedAt && it.studentTickedAt ? (it.motherTickedAt > it.studentTickedAt ? it.motherTickedAt : it.studentTickedAt) : null);
+  const newestFirst = (a, b) => (a.createdAt < b.createdAt ? 1 : -1);
+
+  function reminderFor(role) {
+    // 片方のみチェックから2日以上、自分が未チェック、「あとで」を押していない項目を1件
+    return state.items.filter((it) => statusOf(it) === 'one_ticked').filter((it) => {
+      const mine = role === 'mother' ? it.motherTickedAt : it.studentTickedAt;
+      const other = role === 'mother' ? it.studentTickedAt : it.motherTickedAt;
+      return !mine && other && daysBetween(other) >= 2 && !it.reminderDismissed[role];
+    }).sort(newestFirst)[0] || null;
+  }
+
+  // ---------- components ----------
+  const pill = (it) => { const s = STATUS[statusOf(it)]; return `<span class="pill ${s.cls}">${s.label}</span>`; };
+  const tagMonthly = (it) => (it.monthly ? '<span class="tag">毎月</span>' : '');
+  function amountText(it) {
+    if (it.decision === 'partial') return `<span class="amount">${fmtYen(it.approvedAmount)}</span> <span class="muted sm">/ お願い ${fmtYen(it.amount)}</span>`;
+    return `<span class="amount">${fmtYen(it.amount)}</span>`;
+  }
+  function itemCard(it, { inlineCheck = false } = {}) {
+    const st = statusOf(it);
+    const rest = st === 'declined' || st === 'withdrawn' ? ' is-rest' : '';
+    const noteLine = state.role === 'mother' && it.studentNote && st === 'done'
+      ? `<div class="note-box"><div class="who">受け取り後のひとこと</div>${esc(it.studentNote)}</div>` : '';
+    const doneLine = st === 'done' ? `<div class="muted sm">${fmtDate(doneAt(it))} 受け渡し完了</div>` : '';
+    const check = inlineCheck ? checkRow(it, state.role, { compact: true }) : '';
+    return `
+      <div class="card${rest}">
+        <button class="card-btn" data-action="open" data-id="${it.id}">
+          <div class="row">
+            <div class="grow item-title">${esc(it.title)}${tagMonthly(it)}</div>
+            ${pill(it)}
+          </div>
+          <div class="item-amount">${amountText(it)}</div>
+          ${doneLine}
+        </button>
+        ${noteLine}
+        ${check}
+      </div>`;
+  }
+  function checkRow(it, who, { compact = false } = {}) {
+    const isMother = who === 'mother';
+    const tickedAt = isMother ? it.motherTickedAt : it.studentTickedAt;
+    const otherTicked = isMother ? it.studentTickedAt : it.motherTickedAt;
+    const mine = who === state.role;
+    const st = statusOf(it);
+    const canAct = mine && (st === 'handover' || st === 'one_ticked') && !(tickedAt && otherTicked);
+    const label = isMother ? '渡した' : '受け取った';
+    const whoLabel = isMother ? '母' : '学生';
+    const suffix = tickedAt ? `<span class="who">${fmtDate(tickedAt)}</span>` : '';
+    return `
+      <button class="checkrow${mine ? ' is-mine' : ''}" role="checkbox" aria-checked="${tickedAt ? 'true' : 'false'}"
+        ${canAct ? '' : 'disabled'} data-action="tick" data-id="${it.id}" data-who="${who}">
+        <span class="box">${ICON.check}</span>
+        <span class="lbl">${label}${compact ? '' : ` <span class="who">(${whoLabel})</span>`}</span>
+        ${suffix}
+      </button>`;
+  }
+  function amountInput(name, value, placeholder = '0') {
+    return `
+      <div class="amount-input">
+        <span class="yen" aria-hidden="true">¥</span>
+        <input class="input" type="text" inputmode="numeric" autocomplete="off" name="${name}" value="${esc(value)}" placeholder="${placeholder}" aria-label="金額(円)">
+      </div>`;
+  }
+  function topbar({ title, back = false, right = '' }) {
+    const seg = `
+      <div class="seg" role="group" aria-label="役割の切り替え(モック用)">
+        <button data-action="role" data-role="student" aria-pressed="${state.role === 'student'}">学生</button>
+        <button data-action="role" data-role="mother" aria-pressed="${state.role === 'mother'}">母</button>
+      </div>`;
+    return `
+      <header class="topbar">
+        ${back ? `<button class="btn-icon" data-action="back" aria-label="戻る">${ICON.back}</button>` : '<span class="spacer"></span>'}
+        <h1 class="title">${esc(title)}</h1>
+        ${right || seg}
+      </header>`;
+  }
+  function tabs(current) {
+    const t = [['home', 'ホーム'], ['history', '履歴'], ['settings', '設定']];
+    return `<nav class="tabs" aria-label="主要ナビゲーション">${t.map(([k, l]) => `<button data-action="tab" data-tab="${k}" ${current === k ? 'aria-current="page"' : ''}>${l}</button>`).join('')}</nav>`;
+  }
+  function reminderCard(it, role) {
+    const isMother = role === 'mother';
+    const text = isMother
+      ? `${esc(it.title)} ${fmtYen(handAmount(it))}:渡し済みなら「渡した」をどうぞ`
+      : `${esc(it.title)} ${fmtYen(handAmount(it))}:受け取っていれば「受け取った」をどうぞ`;
+    return `
+      <div class="reminder fade-in" role="note">
+        <p>${text}</p>
+        <div class="actions">
+          <button class="btn btn-secondary" data-action="tick" data-id="${it.id}" data-who="${role}">${isMother ? '渡した' : '受け取った'}</button>
+          <button class="btn btn-text" data-action="dismiss" data-id="${it.id}">あとで</button>
+        </div>
+      </div>`;
+  }
+  const section = (title, body) => `<section class="section"><h2 class="section-title">${title}</h2>${body}</section>`;
+  const empty = (t) => `<div class="empty">${t}</div>`;
+
+  // ---------- screens ----------
+  function screenHome() {
+    const role = state.role;
+    const items = state.items.slice().sort(newestFirst);
+    const rem = reminderFor(role);
+    const onboard = !state.onboardSeen[role]
+      ? `<p class="onboard">${role === 'mother' ? '同じものを二度渡さないための、ふたりの受け渡しメモです' : '頼んだこと・受け取ったことを一か所にまとめて、お互いの手間を減らします'}</p>` : '';
+    const monthly = items.filter((it) => it.monthly && ['handover', 'one_ticked'].includes(statusOf(it)));
+    const recentDone = items.filter((it) => statusOf(it) === 'done' && daysBetween(doneAt(it)) <= 3).slice(0, 3);
+    let body = '';
+    if (role === 'student') {
+      const active = items.filter((it) => !it.monthly && ['requested', 'handover', 'one_ticked'].includes(statusOf(it)));
+      body = [
+        monthly.length ? section('毎月', monthly.map((it) => itemCard(it, { inlineCheck: true })).join('')) : '',
+        section('進行中', active.length ? active.map((it) => itemCard(it, { inlineCheck: ['handover', 'one_ticked'].includes(statusOf(it)) })).join('') : empty('進行中のお願いはありません')),
+        recentDone.length ? section('最近の完了', recentDone.map((it) => itemCard(it)).join('') + `<button class="btn btn-text" data-action="tab" data-tab="history" style="align-self:flex-start">履歴を見る</button>`) : '',
+      ].join('');
+    } else {
+      const requested = items.filter((it) => statusOf(it) === 'requested');
+      const handover = items.filter((it) => !it.monthly && ['handover', 'one_ticked'].includes(statusOf(it)));
+      body = [
+        monthly.length ? section('毎月', monthly.map((it) => itemCard(it, { inlineCheck: true })).join('')) : '',
+        section('返答待ち', requested.length ? requested.map((it) => itemCard(it)).join('') : empty('新しいお願いはありません')),
+        handover.length ? section('受け渡し待ち', handover.map((it) => itemCard(it, { inlineCheck: true })).join('')) : '',
+        recentDone.length ? section('最近の完了', recentDone.map((it) => itemCard(it)).join('')) : '',
+      ].join('');
+    }
+    return `
+      ${topbar({ title: 'お願い' })}
+      <main class="main">
+        ${onboard}
+        ${rem ? reminderCard(rem, role) : ''}
+        ${body}
+      </main>
+      ${role === 'student' ? `<div class="bottom-action"><button class="btn btn-primary btn-block" data-action="go-add">${ICON.plus}お願いを追加</button></div>` : ''}
+      ${tabs('home')}`;
+  }
+
+  function screenAdd() {
+    const d = state.draft;
+    const chips = ['食費', '日用品', '教科書', '定期券', '学費関連', 'その他'];
+    return `
+      ${topbar({ title: 'お願いを追加', back: true, right: '<span class="spacer"></span>' })}
+      <main class="main">
+        <div class="field">
+          <label for="f-title">品目</label>
+          <div class="chips">${chips.map((c) => `<button class="chip" data-action="chip" data-chip="${c}" aria-pressed="${d.title === c}">${c}</button>`).join('')}</div>
+          <input class="input" id="f-title" name="title" type="text" value="${esc(d.title)}" placeholder="例:教科書(統計学)" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="f-amount">金額</label>
+          ${amountInput('amount', d.amount)}
+          <div class="hint" id="amount-hint"></div>
+        </div>
+        <div class="field">
+          <label for="f-note">メモ(任意)</label>
+          <textarea class="input" id="f-note" name="note" placeholder="例:後期分の教科書">${esc(d.note)}</textarea>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-primary btn-block" data-action="submit-add">お願いを送る</button>
+          <button class="btn btn-text btn-block" data-action="back">キャンセル</button>
+        </div>
+      </main>`;
+  }
+
+  function decisionSummary(it) {
+    if (it.decision === 'full') return `${fmtYen(it.amount)} を渡す予定です`;
+    if (it.decision === 'partial') return `${fmtYen(it.approvedAmount)} を渡す予定です`;
+    if (it.decision === 'declined') return '今回は見送りです';
+    return '';
+  }
+
+  function screenDetail(id) {
+    const it = byId(id);
+    if (!it) return screenHome();
+    const st = statusOf(it);
+    const role = state.role;
+    const rest = st === 'declined' || st === 'withdrawn' ? ' is-rest' : '';
+
+    // 経過
+    const steps = [`<div class="step"><span class="d">${fmtDate(it.createdAt)}</span><span>${it.monthly ? '毎月分として起票' : 'お願いを送りました'}</span></div>`];
+    if (it.decidedAt && !it.monthly) steps.push(`<div class="step"><span class="d">${fmtDate(it.decidedAt)}</span><span>返答:${decisionSummary(it)}</span></div>`);
+    if (it.withdrawn) steps.push(`<div class="step"><span class="d"></span><span>取り下げました</span></div>`);
+    if (st === 'done') steps.push(`<div class="step"><span class="d">${fmtDate(doneAt(it))}</span><span>受け渡し完了</span></div>`);
+
+    const notes = [
+      it.note ? `<div class="note-box"><div class="who">メモ</div>${esc(it.note)}</div>` : '',
+      it.motherNote ? `<div class="note-box"><div class="who">母からのひとこと</div>${esc(it.motherNote)}</div>` : '',
+      it.studentNote ? `<div class="note-box"><div class="who">受け取り後のひとこと</div>${esc(it.studentNote)}</div>` : '',
+    ].join('');
+
+    // 受け渡し
+    const handoverBlock = (st === 'handover' || st === 'one_ticked' || st === 'done')
+      ? section('受け渡し', `<div class="card">${checkRow(it, 'mother')}${checkRow(it, 'student')}${st === 'done' ? `<div class="muted sm">${fmtDate(doneAt(it))} 受け渡し完了</div>` : ''}</div>`)
+      : '';
+
+    // 学生:受け取り後のひとこと
+    const noteInput = role === 'student' && it.studentTickedAt && !it.studentNote
+      ? section('ひとこと(任意)', `<div class="card"><input class="input" name="studentNote" type="text" placeholder="空のままでもかまいません" autocomplete="off"><button class="btn btn-secondary" data-action="send-student-note" data-id="${it.id}">送る</button></div>`)
+      : '';
+
+    // 母:判断パネル
+    let decisionPanel = '';
+    if (role === 'mother' && st === 'requested') {
+      const dc = state.decision;
+      const radio = (key, label) => `<button class="radio" role="radio" aria-checked="${dc.choice === key}" data-action="choose" data-choice="${key}"><span class="dot"></span><span>${label}</span></button>`;
+      decisionPanel = section('返答', `
+        <div class="card panel" role="radiogroup" aria-label="返答の内容">
+          ${radio('full', 'この金額で渡す')}
+          ${radio('partial', '一部を渡す')}
+          ${dc.choice === 'partial' ? `<div class="field" style="padding-left:34px"><label>渡す金額</label>${amountInput('decisionAmount', dc.amount || String(it.amount))}</div>` : ''}
+          ${radio('declined', '今回は見送る')}
+          <hr class="divider">
+          <div class="field"><label for="f-mnote">ひとこと(任意)</label><input class="input" id="f-mnote" name="decisionNote" type="text" value="${esc(dc.note)}" placeholder="例:残りは来月に" autocomplete="off"></div>
+          <button class="btn btn-primary btn-block" data-action="submit-decision" data-id="${it.id}" ${dc.choice ? '' : 'disabled'}>返答する</button>
+          <button class="btn btn-text btn-block" data-action="back">あとで</button>
+        </div>`);
+    }
+
+    // 学生:取り下げ
+    const withdraw = role === 'student' && st === 'requested' && !it.monthly
+      ? `<button class="btn btn-text btn-block" data-action="ask-withdraw" data-id="${it.id}">取り下げる</button>` : '';
+
+    return `
+      ${topbar({ title: 'お願い', back: true, right: '<span class="spacer"></span>' })}
+      <main class="main">
+        <div class="detail-head${rest}">
+          <div class="row"><div class="grow item-title">${esc(it.title)}${tagMonthly(it)}</div>${pill(it)}</div>
+          <div class="pair">
+            <span class="amount big">${fmtYen(it.decision === 'partial' ? it.approvedAmount : it.amount)}</span>
+            ${it.decision === 'partial' ? `<span class="muted sm">お願い ${fmtYen(it.amount)}</span>` : ''}
+          </div>
+          <div class="muted sm">${fmtDate(it.createdAt)}</div>
+        </div>
+        ${notes}
+        ${decisionPanel}
+        ${(!decisionPanel && it.decision && !it.monthly && st !== 'done') ? section('返答', `<div class="card"><div>${decisionSummary(it)}</div></div>`) : ''}
+        ${handoverBlock}
+        ${noteInput}
+        ${section('経過', `<div class="timeline">${steps.join('')}</div>`)}
+        ${withdraw}
+      </main>`;
+  }
+
+  function screenHistory() {
+    const [y, m] = state.hist.month.split('-').map(Number);
+    const cur = new Date(y, m - 1, 1);
+    const prev = new Date(y, m - 2, 1), next = new Date(y, m, 1);
+    const key = state.hist.month;
+    let items = state.items.filter((it) => monthKey(new Date(it.createdAt)) === key && statusOf(it) !== 'requested');
+    if (state.hist.filter === 'done') items = items.filter((it) => statusOf(it) === 'done');
+    if (state.hist.filter === 'declined') items = items.filter((it) => ['declined', 'withdrawn'].includes(statusOf(it)));
+    items.sort(newestFirst);
+    const total = state.items.filter((it) => monthKey(new Date(it.createdAt)) === key && statusOf(it) === 'done').reduce((s, it) => s + handAmount(it), 0);
+    const groups = new Map();
+    for (const it of items) { const k = fmtDate(it.createdAt); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(it); }
+    const chips = [['all', 'すべて'], ['done', '完了'], ['declined', '見送り']];
+    return `
+      ${topbar({ title: '履歴' })}
+      <main class="main">
+        <div class="monthnav">
+          <button class="btn-icon" data-action="hist-month" data-month="${monthKey(prev)}" aria-label="前の月">${ICON.chevL}</button>
+          <span class="lbl">${monthLabel(cur)}</span>
+          <button class="btn-icon" data-action="hist-month" data-month="${monthKey(next)}" aria-label="次の月">${ICON.chevR}</button>
+        </div>
+        <div class="chips">${chips.map(([k, l]) => `<button class="chip" data-action="hist-filter" data-filter="${k}" aria-pressed="${state.hist.filter === k}">${l}</button>`).join('')}</div>
+        ${state.settings.showTotals ? `<div class="muted sm">この月の受け渡し合計 <span class="amount">${fmtYen(total)}</span></div>` : ''}
+        ${groups.size ? [...groups].map(([d, list]) => `<div class="daygroup"><div class="daylabel">${d}</div>${list.map((it) => itemCard(it)).join('')}</div>`).join('') : empty('この月の記録はありません')}
+      </main>
+      ${tabs('history')}`;
+  }
+
+  function screenSettings() {
+    const s = state.settings;
+    const themes = [['system', 'システム'], ['light', 'ライト'], ['dark', 'ダーク']];
+    return `
+      ${topbar({ title: '設定' })}
+      <main class="main">
+        ${section('表示', `
+          <div class="card">
+            <div class="setting-row"><span>テーマ</span>
+              <div class="seg" role="group" aria-label="テーマ">${themes.map(([k, l]) => `<button data-action="theme" data-theme="${k}" aria-pressed="${state.theme === k}">${l}</button>`).join('')}</div>
+            </div>
+            <button class="toggle" role="switch" aria-checked="${s.showTotals}" data-action="toggle-totals"><span>履歴に月の合計を表示</span><span class="sw"></span></button>
+          </div>`)}
+        ${section('毎月の生活費', `
+          <div class="card">
+            <button class="toggle" role="switch" aria-checked="${s.monthly.enabled}" data-action="toggle-monthly"><span>毎月分を自動で起票する</span><span class="sw"></span></button>
+            <div class="setting-row"><span>金額</span><div class="amount-input" style="width:160px"><span class="yen" aria-hidden="true">¥</span><input class="input" type="text" inputmode="numeric" name="monthlyAmount" value="${Number(s.monthly.amount).toLocaleString('ja-JP')}" aria-label="毎月の金額" style="width:160px;padding-left:28px;text-align:right;min-height:40px"></div></div>
+            <div class="setting-row"><span>起票日</span><input class="input" type="number" min="1" max="28" name="monthlyDay" value="${s.monthly.day}" aria-label="起票日"></div>
+            <p class="muted sm">返答のやりとりはなく、「渡した」「受け取った」の確認だけです。</p>
+          </div>`)}
+        ${section('お知らせ', `<div class="card"><p class="sm">受け渡しの確認が片方だけの場合、2日後に一度だけお知らせします。</p></div>`)}
+        <button class="btn btn-text btn-block" data-action="reset">デモデータを初期化</button>
+      </main>
+      ${tabs('settings')}`;
+  }
+
+  // ---------- render ----------
+  function applyTheme() {
+    const root = document.documentElement;
+    if (state.theme === 'system') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', state.theme);
+  }
+  function render() {
+    applyTheme();
+    const sc = state.screen;
+    let html = '';
+    if (sc.name === 'home') html = screenHome();
+    else if (sc.name === 'add') html = screenAdd();
+    else if (sc.name === 'detail') html = screenDetail(sc.id);
+    else if (sc.name === 'history') html = screenHistory();
+    else if (sc.name === 'settings') html = screenSettings();
+    document.getElementById('app').innerHTML = html;
+    renderOverlay();
+    save();
+  }
+  function renderOverlay() {
+    const o = document.getElementById('overlay');
+    if (!sheet) { o.innerHTML = ''; return; }
+    o.innerHTML = `
+      <div class="scrim" data-action="sheet-cancel">
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" data-stop>
+          <h2 id="sheet-title">${sheet.title}</h2>
+          <p class="sm muted">${sheet.body}</p>
+          <div class="actions">
+            <button class="btn btn-secondary btn-block" data-action="sheet-confirm">${sheet.confirmLabel}</button>
+            <button class="btn btn-text btn-block" data-action="sheet-cancel">戻る</button>
+          </div>
+        </div>
+      </div>`;
+    o.querySelector('[data-action="sheet-confirm"]').focus();
+  }
+  function toast(msg) {
+    const old = document.querySelector('.toast'); if (old) old.remove();
+    const el = document.createElement('div');
+    el.className = 'toast'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); el.textContent = msg;
+    document.body.appendChild(el);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.remove(), 3000);
+  }
+  function go(screen) { state.screen = screen; window.scrollTo(0, 0); render(); }
+  function openSheet(cfg) { sheet = cfg; renderOverlay(); }
+  function closeSheet() { sheet = null; renderOverlay(); }
+
+  // ---------- actions ----------
+  const parseAmount = (s) => Number(String(s || '').replace(/[^\d]/g, '')) || 0;
+  const formatAmountField = (input) => {
+    const n = parseAmount(input.value);
+    input.value = n ? n.toLocaleString('ja-JP') : '';
+  };
+
+  function tick(id, who) {
+    const it = byId(id); if (!it) return;
+    const key = who === 'mother' ? 'motherTickedAt' : 'studentTickedAt';
+    const otherKey = who === 'mother' ? 'studentTickedAt' : 'motherTickedAt';
+    if (it[key]) {
+      if (it[otherKey]) return; // 両方付いた後は取り消さない
+      it[key] = null;
+    } else {
+      it[key] = now().toISOString();
+      it.reminderDismissed[who] = false;
+      if (it[otherKey]) toast('受け渡しが完了しました');
+    }
+    render();
+  }
+
+  function submitDecision(id) {
+    const it = byId(id); if (!it) return;
+    const dc = state.decision;
+    if (!dc.choice) return;
+    const finish = () => {
+      it.decision = dc.choice;
+      it.decidedAt = now().toISOString();
+      it.motherNote = dc.note.trim();
+      if (dc.choice === 'partial') it.approvedAmount = parseAmount(dc.amount) || it.amount;
+      else delete it.approvedAmount;
+      state.decision = defaultState().decision;
+      toast('学生に伝えました');
+      go({ name: 'home' });
+    };
+    if (dc.choice === 'partial' && !(parseAmount(dc.amount) > 0)) {
+      const inp = document.querySelector('input[name="decisionAmount"]'); if (inp) inp.focus();
+      return;
+    }
+    if (dc.choice === 'declined') {
+      openSheet({ title: '今回は見送りますか?', body: '学生側には「見送り」と表示されます。', confirmLabel: '見送る', onConfirm: () => { closeSheet(); finish(); } });
+      return;
+    }
+    finish();
+  }
+
+  function submitAdd() {
+    const d = state.draft;
+    const hint = document.getElementById('amount-hint');
+    if (!d.title.trim()) { document.getElementById('f-title').focus(); return; }
+    const amt = parseAmount(d.amount);
+    if (!(amt > 0)) { if (hint) hint.textContent = '金額を入力してください'; document.querySelector('input[name="amount"]').focus(); return; }
+    state.items.push({ id: 'i-' + uid(), title: d.title.trim(), amount: amt, monthly: false, note: d.note.trim(), createdAt: now().toISOString(), decision: null, decidedAt: null, motherTickedAt: null, studentTickedAt: null, motherNote: '', studentNote: '', withdrawn: false, reminderDismissed: {} });
+    state.draft = defaultState().draft;
+    toast('お願いを送りました');
+    go({ name: 'home' });
+  }
+
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    if (e.target.closest('[data-stop]') && el.dataset.action === 'sheet-cancel' && !e.target.closest('button')) return;
+    const a = el.dataset.action, id = el.dataset.id;
+    switch (a) {
+      case 'role':
+        state.role = el.dataset.role; state.decision = defaultState().decision; go({ name: 'home' }); break;
+      case 'tab':
+        go({ name: el.dataset.tab }); break;
+      case 'back':
+        state.decision = defaultState().decision;
+        go({ name: state.screen.from || 'home' }); break;
+      case 'go-add':
+        go({ name: 'add', from: 'home' }); break;
+      case 'open':
+        state.decision = defaultState().decision; go({ name: 'detail', id, from: state.screen.name === 'history' ? 'history' : 'home' }); break;
+      case 'chip':
+        state.draft.title = el.dataset.chip; render(); document.getElementById('f-title').focus(); break;
+      case 'submit-add':
+        submitAdd(); break;
+      case 'tick':
+        tick(id, el.dataset.who); break;
+      case 'dismiss': {
+        const it = byId(id); if (it) { it.reminderDismissed[state.role] = true; } render(); break;
+      }
+      case 'choose':
+        state.decision.choice = el.dataset.choice; render();
+        if (el.dataset.choice === 'partial') { const inp = document.querySelector('input[name="decisionAmount"]'); if (inp) { inp.focus(); inp.select(); } }
+        break;
+      case 'submit-decision':
+        submitDecision(id); break;
+      case 'ask-withdraw':
+        openSheet({ title: 'お願いを取り下げますか?', body: '母側には「取り下げ」と表示されます。', confirmLabel: '取り下げる', onConfirm: () => { const it = byId(id); if (it) it.withdrawn = true; closeSheet(); toast('取り下げました'); go({ name: 'home' }); } });
+        break;
+      case 'send-student-note': {
+        const it = byId(id); const inp = document.querySelector('input[name="studentNote"]');
+        if (it) { it.studentNote = (inp ? inp.value : '').trim(); if (!it.studentNote) it.studentNote = ' '; }
+        toast('送りました'); render(); break;
+      }
+      case 'hist-month':
+        state.hist.month = el.dataset.month; render(); break;
+      case 'hist-filter':
+        state.hist.filter = el.dataset.filter; render(); break;
+      case 'theme':
+        state.theme = el.dataset.theme; render(); break;
+      case 'toggle-totals':
+        state.settings.showTotals = !state.settings.showTotals; render(); break;
+      case 'toggle-monthly':
+        state.settings.monthly.enabled = !state.settings.monthly.enabled; ensureMonthly(); render(); break;
+      case 'reset': {
+        const keep = { role: state.role, theme: state.theme };
+        state = { ...defaultState(), ...keep }; ensureMonthly(); toast('デモデータを初期化しました'); go({ name: 'settings' }); break;
+      }
+      case 'sheet-confirm':
+        if (sheet && sheet.onConfirm) sheet.onConfirm(); break;
+      case 'sheet-cancel':
+        closeSheet(); break;
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    const t = e.target;
+    if (!(t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement)) return;
+    switch (t.name) {
+      case 'title': state.draft.title = t.value; break;
+      case 'note': state.draft.note = t.value; break;
+      case 'amount': formatAmountField(t); state.draft.amount = t.value; { const h = document.getElementById('amount-hint'); if (h) h.textContent = ''; } break;
+      case 'decisionAmount': formatAmountField(t); state.decision.amount = t.value; break;
+      case 'decisionNote': state.decision.note = t.value; break;
+      case 'monthlyAmount': formatAmountField(t); state.settings.monthly.amount = parseAmount(t.value); save(); break;
+      case 'monthlyDay': state.settings.monthly.day = Math.min(28, Math.max(1, Number(t.value) || 1)); save(); break;
+    }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && sheet) closeSheet(); });
+  document.addEventListener('click', (e) => {
+    // ホームを一度見たらオンボーディング文を次回から出さない
+    if (state.screen.name !== 'home') return;
+    if (!state.onboardSeen[state.role]) { state.onboardSeen[state.role] = true; save(); }
+  }, true);
+
+  ensureMonthly();
+  render();
+})();
+</script>
+</body>
+</html>
