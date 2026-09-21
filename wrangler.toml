@@ -7,6 +7,9 @@ compatibility_date = "2026-09-01"
 directory = "./docs"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
+# /api/* は静的ファイルの振り分けより先に Worker へ渡す。
+# これがないと、単一ページ扱いの取りこぼし処理が API を index.html で返してしまう恐れがある。
+run_worker_first = ["/api/*"]
 
 [[d1_databases]]
 binding = "DB"

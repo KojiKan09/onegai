@@ -60,16 +60,7 @@ npm run test:live        # 2つのブラウザで紐づけて通し確認(要 np
 
 ## 公開する
 
-Cloudflare のアカウントを作ったあと、一度だけ:
-
-```sh
-npx wrangler login
-npx wrangler d1 create onegai            # 出てきた database_id を wrangler.toml に貼る
-npm run db:init:remote
-npx wrangler secret put VAPID_PRIVATE_KEY
-npm run deploy
-```
-
+初回の手順は [DEPLOY.md](DEPLOY.md) に一段ずつ書いてある。
 以後は `npm run deploy` だけでよい。定時処理(毎日 00:00 UTC = 日本時間の朝9時)も一緒に登録される。
 
 ## 使いはじめ
