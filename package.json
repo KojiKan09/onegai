@@ -1,0 +1,23 @@
+{
+  "name": "onegai",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8788",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute onegai --local --file=worker/schema.sql --yes",
+    "db:init:remote": "wrangler d1 execute onegai --remote --file=worker/schema.sql",
+    "vapid": "node worker/scripts/vapid.mjs",
+    "test:push": "node worker/push.test.mjs",
+    "test:api": "node worker/test.mjs",
+    "test:live": "node verify-live.mjs ./shots-live",
+    "test": "npm run test:push && npm run test:api && npm run test:live"
+  },
+  "devDependencies": {
+    "wrangler": "^4.40.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "workerd@1.20260921.1": true
+  }
+}

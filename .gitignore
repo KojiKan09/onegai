@@ -1,2 +1,6 @@
 shots/
 edge-profile*/
+.dev.vars
+.wrangler/
+node_modules/
+shots-live/
