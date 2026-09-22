@@ -14,7 +14,7 @@ run_worker_first = ["/api/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "onegai"
-database_id = "local-development-placeholder"
+database_id = "14c8d782-b3eb-4e78-b510-fc26d92f6a06"
 
 # 毎日 00:00 UTC = 日本時間の朝9時。深夜に鳴らさないための時刻。
 # 月曜だけ、メモの件数も受け取る側に知らせる。
@@ -22,7 +22,7 @@ database_id = "local-development-placeholder"
 crons = ["0 0 * * *"]
 
 [vars]
-VAPID_SUBJECT = "mailto:noreply@example.com"
+VAPID_SUBJECT = "mailto:kantaiphonestm@gmail.com"
 # VAPID_PUBLIC_KEY は npm run vapid で作って、ここに貼る(公開してよい)
-VAPID_PUBLIC_KEY = "BBsmWRiHSrif5xsmgioKzuH-nD6X517kFGXZmVsjxqtktU69SdKvbRn5UNvdx3XS933B8-6xFbO7BuX1iFGD1Qk"
+VAPID_PUBLIC_KEY = "BH_dVls8ChOynHVhXPekqayNkWnSice_yXT95CTg2b9MzAk1xiLB8FCPsTcHyRxTC66DH8pBPwI9NxoxReBAAFY"
 # VAPID_PRIVATE_KEY は npx wrangler secret put VAPID_PRIVATE_KEY で登録する。ここには書かない。
