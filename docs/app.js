@@ -19,13 +19,37 @@ const monthLabel = (d) => d.getFullYear() + '年' + (d.getMonth() + 1) + '月';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = (sel) => document.querySelector(sel);
 
+const svg = (d) => '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>';
 const ICON = {
-  back: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
-  plus: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
-  check: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
-  chevL: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
-  chevR: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+  back: svg('<path d="M15 6l-6 6 6 6"/>'),
+  plus: svg('<path d="M12 5v14M5 12h14"/>'),
+  check: svg('<path d="M5 12.5l4.5 4.5L19 7"/>'),
+  chevL: svg('<path d="M15 6l-6 6 6 6"/>'),
+  chevR: svg('<path d="M9 6l6 6-6 6"/>'),
+  // タブ
+  home: svg('<path d="M4 11l8-6 8 6v8a2 2 0 01-2 2H6a2 2 0 01-2-2z"/>'),
+  clock: svg('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>'),
+  gear: svg('<circle cx="12" cy="12" r="3.2"/><path d="M12 4.5v2M12 17.5v2M4.5 12h2M17.5 12h2M6.7 6.7l1.4 1.4M15.9 15.9l1.4 1.4M17.3 6.7l-1.4 1.4M8.1 15.9l-1.4 1.4"/>'),
+  // 品目
+  book: svg('<path d="M5 4h11a2 2 0 012 2v14H7a2 2 0 01-2-2z"/><path d="M9 8h7M9 12h7"/>'),
+  basket: svg('<path d="M6 8h12l-1.2 11a2 2 0 01-2 1.8H9.2a2 2 0 01-2-1.8z"/><path d="M9 8V6a3 3 0 016 0v2"/>'),
+  bottle: svg('<path d="M10 3h4v3l2 3v10a2 2 0 01-2 2h-4a2 2 0 01-2-2V9l2-3z"/><path d="M8 13h8"/>'),
+  bus: svg('<rect x="4" y="6" width="16" height="12" rx="3"/><circle cx="8.5" cy="18.5" r="1.6"/><circle cx="15.5" cy="18.5" r="1.6"/>'),
+  ticket: svg('<path d="M4 8.5a2 2 0 012-2h12a2 2 0 012 2 1.9 1.9 0 000 3.8 1.9 1.9 0 000 3.8 2 2 0 01-2 2H6a2 2 0 01-2-2 1.9 1.9 0 000-3.8 1.9 1.9 0 000-3.8z"/><path d="M13.5 7v10"/>'),
+  cap: svg('<path d="M3 9l9-4 9 4-9 4z"/><path d="M7 11.5V16c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5v-4.5"/>'),
+  receipt: svg('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'),
+  calendar: svg('<rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>'),
 };
+
+// 品目名から丸アイコンを選ぶ。保存しているデータは増やさず、文字から引くだけ。
+const ICON_WORDS = [
+  ['食費', 'basket'], ['日用品', 'bottle'], ['教科書', 'book'], ['参考書', 'book'],
+  ['ノート', 'book'], ['定期券', 'ticket'], ['交通費', 'bus'], ['学費', 'cap'],
+];
+const iconByWord = (t) => { const hit = ICON_WORDS.find(([w]) => String(t).includes(w)); return ICON[hit ? hit[1] : 'receipt']; };
+const iconFor = (it) => (it.monthly ? ICON.calendar : iconByWord(titleOf(it)));
+const itemIcon = (it, small) => '<span class="item-icon' + (small ? ' sm' : '') + '">' + iconFor(it) + '</span>';
+const initialOf = (name) => (Array.from(String(name || ''))[0] || '');
 
 const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent)
   || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -151,11 +175,14 @@ function itemCard(it, { inlineCheck = false } = {}) {
   const rest = ['declined', 'cancelled', 'self_paid'].includes(st) ? ' is-rest' : '';
   const noteLine = role() === 'mother' && it.studentNote && st === 'done'
     ? '<div class="note-box"><div class="who">受け取り後のひとこと</div>' + esc(it.studentNote) + '</div>' : '';
-  const doneLine = st === 'done' ? '<div class="muted sm">' + fmtDate(doneAt(it)) + ' 受け渡し完了</div>' : '';
+  const doneLine = st === 'done' ? '<span class="muted sm">' + fmtDate(doneAt(it)) + ' 受け渡し完了</span>' : '';
   return '<div class="card' + rest + '">'
     + '<button class="card-btn" data-action="open" data-id="' + it.id + '">'
-    + '<div class="row"><div class="grow item-title">' + esc(titleOf(it)) + tagMonthly(it) + '</div>' + pill(it) + '</div>'
-    + '<div class="item-amount">' + amountText(it) + '</div>' + doneLine
+    + itemIcon(it)
+    + '<span class="grow col">'
+    + '<span class="row"><span class="grow item-title">' + esc(titleOf(it)) + tagMonthly(it) + '</span>' + pill(it) + '</span>'
+    + '<span class="item-amount">' + amountText(it) + '</span>' + doneLine
+    + '</span>'
     + '</button>' + noteLine + (inlineCheck ? checkRow(it, role(), { compact: true }) : '') + '</div>';
 }
 
@@ -163,14 +190,15 @@ function memoCard(it) {
   const on = !!selected[it.id];
   return '<div class="card' + (on ? ' is-selected' : '') + '">'
     + '<button class="selectrow" role="checkbox" aria-checked="' + on + '" data-action="select" data-id="' + it.id + '">'
+    + itemIcon(it)
+    + '<span class="grow col"><span class="item-title">' + esc(titleOf(it)) + '</span>'
+    + '<span class="memo-amount amount">' + fmtYen(it.amount) + '</span></span>'
     + '<span class="box">' + ICON.check + '</span>'
-    + '<span class="grow"><span class="item-title">' + esc(titleOf(it)) + '</span>'
-    + '<span class="memo-amount amount" style="display:block">' + fmtYen(it.amount) + '</span></span>'
-    + '<span class="muted xs">' + fmtDate(it.createdAt) + '</span>'
     + '</button>'
     + '<div class="memo-actions">'
     + '<button class="btn btn-text" data-action="open" data-id="' + it.id + '">開く</button>'
     + '<button class="btn btn-text" data-action="self-paid" data-id="' + it.id + '">自分で払った</button>'
+    + '<span class="when">' + fmtDate(it.createdAt) + '</span>'
     + '</div></div>';
 }
 
@@ -191,19 +219,18 @@ function checkRow(it, who, { compact = false } = {}) {
 }
 
 function amountInput(name, value, { big = false, label = '金額(円)', autofocus = false } = {}) {
-  return '<div class="amount-input"><span class="yen" aria-hidden="true">¥</span>'
+  return '<div class="amount-input' + (big ? ' big' : '') + '"><span class="yen" aria-hidden="true">¥</span>'
     + '<input class="input" type="text" inputmode="numeric" autocomplete="off" name="' + name + '"'
     + ' value="' + esc(value) + '" placeholder="0" aria-label="' + label + '"'
-    + (autofocus ? ' autofocus' : '')
-    + (big ? ' style="font-size:var(--fs-amount);min-height:60px"' : '') + '>'
+    + (autofocus ? ' autofocus' : '') + '>'
     + '</div>';
 }
 
 function topbar({ title, back = false }) {
   return '<header class="topbar">'
-    + (back ? '<button class="btn-icon" data-action="back" aria-label="戻る">' + ICON.back + '</button>' : '<span class="spacer"></span>')
+    + (back ? '<button class="btn-icon" data-action="back" aria-label="戻る">' + ICON.back + '</button>' : '')
     + '<h1 class="title">' + esc(title) + '</h1>'
-    + (demo.active ? demoSwitch() : '<span class="spacer"></span>')
+    + (demo.active ? demoSwitch() : '')
     + '</header>';
 }
 
@@ -215,9 +242,9 @@ function demoSwitch() {
 }
 
 function tabs(current) {
-  const t = [['home', 'ホーム'], ['history', '履歴'], ['settings', '設定']];
+  const t = [['home', 'ホーム', ICON.home], ['history', '履歴', ICON.clock], ['settings', '設定', ICON.gear]];
   return '<nav class="tabs" aria-label="主要ナビゲーション">'
-    + t.map(([k, l]) => '<button data-action="tab" data-tab="' + k + '"' + (current === k ? ' aria-current="page"' : '') + '>' + l + '</button>').join('')
+    + t.map(([k, l, ic]) => '<button data-action="tab" data-tab="' + k + '"' + (current === k ? ' aria-current="page"' : '') + '>' + ic + l + '</button>').join('')
     + '</nav>';
 }
 
@@ -275,9 +302,12 @@ function screenHome() {
       recentDone.length ? section('最近の完了', recentDone.map((it) => itemCard(it)).join('')) : '',
     ].join('');
     const bar = sel.length
-      ? '<div class="sendbar"><button class="btn btn-primary btn-block" data-action="send">' + sel.length + '件を送る</button>'
-        + '<button class="btn btn-text btn-block" data-action="clear-select">選択を解除</button></div>'
-      : '<div class="sendbar"><button class="btn btn-primary btn-block" data-action="go-add">' + ICON.plus + 'メモしておく</button></div>';
+      ? '<div class="sendbar"><button class="btn btn-text btn-block" data-action="clear-select">選択を解除</button>'
+        + '<div class="sendrow">'
+        + '<button class="btn-round" data-action="go-add" aria-label="メモしておく">' + ICON.plus + '</button>'
+        + '<button class="btn btn-primary btn-block btn-3d" data-action="send">' + sel.length + '件を送る</button>'
+        + '</div></div>'
+      : '<div class="sendbar"><button class="btn btn-primary btn-block btn-3d" data-action="go-add">' + ICON.plus + 'メモしておく</button></div>';
     return topbar({ title: '費用メモ' })
       + '<main class="main">' + pushWarning() + (rem ? reminderCard(rem) : '') + body + '</main>'
       + bar + tabs('home');
@@ -294,12 +324,14 @@ function screenHome() {
   }
   const handover = list.filter((it) => !it.monthly && ['handover', 'one_ticked'].includes(statusOf(it)));
   const batchHtml = batches.map((b) => '<div class="batch">'
-    + '<div class="batch-head"><span class="from">' + esc(withSan(nameOf('student'))) + 'から</span>'
-    + '<span class="count">' + b.items.length + '件 ・ ' + fmtDate(b.at) + '</span></div>'
+    + '<div class="batch-head"><span class="avatar" aria-hidden="true">' + esc(initialOf(nameOf('student'))) + '</span>'
+    + '<span class="grow col"><span class="from">' + esc(withSan(nameOf('student'))) + 'から</span>'
+    + '<span class="count">' + b.items.length + '件 ・ ' + fmtDate(b.at) + '</span></span></div>'
     + b.items.map((it) => '<button class="batch-line" data-action="open" data-id="' + it.id + '">'
+      + itemIcon(it, true)
       + '<span class="grow">' + esc(titleOf(it)) + '</span><span class="amount">' + fmtYen(it.amount) + '</span></button>').join('')
     + '<div class="batch-foot">'
-    + '<button class="btn btn-primary btn-block" data-action="approve-batch" data-batch="' + b.id + '">全部そのまま渡す</button>'
+    + '<button class="btn btn-primary btn-block btn-3d" data-action="approve-batch" data-batch="' + b.id + '">全部そのまま渡す</button>'
     + '<p class="muted xs">1件ずつ決めたいときは、品目を選んでください。</p>'
     + '</div></div>').join('');
 
@@ -322,12 +354,12 @@ function screenAdd() {
     + amountInput('amount', draft.amount, { big: true, autofocus: true })
     + '<div class="hint" id="amount-hint"></div></div>'
     + '<div class="field"><label for="f-title">なに(任意)</label>'
-    + '<div class="chips">' + chips.map((c) => '<button class="chip" data-action="chip" data-chip="' + c + '" aria-pressed="' + (draft.title === c) + '">' + c + '</button>').join('') + '</div>'
+    + '<div class="chips">' + chips.map((c) => '<button class="chip" data-action="chip" data-chip="' + c + '" aria-pressed="' + (draft.title === c) + '">' + iconByWord(c) + c + '</button>').join('') + '</div>'
     + '<input class="input" id="f-title" name="title" type="text" value="' + esc(draft.title) + '" placeholder="例:教科書(統計学)" autocomplete="off"></div>'
     + (draft.showNote
       ? '<div class="field"><label for="f-note">補足(任意)</label><textarea class="input" id="f-note" name="note" placeholder="例:後期の必修で使います">' + esc(draft.note) + '</textarea></div>'
       : '<button class="btn btn-text" data-action="show-note" style="align-self:flex-start">補足を追加</button>')
-    + '<div class="stack"><button class="btn btn-primary btn-block" data-action="submit-memo">メモしておく</button>'
+    + '<div class="stack"><button class="btn btn-primary btn-block btn-3d" data-action="submit-memo">メモしておく</button>'
     + '<button class="btn btn-text btn-block" data-action="back">やめる</button></div>'
     + '<p class="muted xs">メモの間は相手に通知されません。あとでまとめて送れます。</p>'
     + '</main>';
@@ -385,14 +417,14 @@ function screenDetail(id) {
       + radio('declined', '今回は見送る')
       + '<hr class="divider">'
       + '<div class="field"><label for="f-mnote">ひとこと(任意)</label><input class="input" id="f-mnote" name="decisionNote" type="text" value="' + esc(decision.note) + '" placeholder="例:残りは来月に" autocomplete="off"></div>'
-      + '<button class="btn btn-primary btn-block" data-action="submit-decision" data-id="' + it.id + '"' + (decision.choice ? '' : ' disabled') + '>返事する</button>'
+      + '<button class="btn btn-primary btn-block btn-3d" data-action="submit-decision" data-id="' + it.id + '"' + (decision.choice ? '' : ' disabled') + '>返事する</button>'
       + '<button class="btn btn-text btn-block" data-action="back">あとで</button>'
       + '</div>');
   }
 
   const memoActions = role() === 'student' && st === 'memo'
     ? section('このメモ', '<div class="card stack">'
-      + '<button class="btn btn-secondary btn-block" data-action="send-one" data-id="' + it.id + '">これだけ送る</button>'
+      + '<button class="btn btn-secondary btn-block btn-3d" data-action="send-one" data-id="' + it.id + '">これだけ送る</button>'
       + '<button class="btn btn-text btn-block" data-action="self-paid" data-id="' + it.id + '">自分で払った</button>'
       + '<button class="btn btn-text btn-block" data-action="ask-cancel" data-id="' + it.id + '">やめる</button></div>')
     : '';
@@ -462,7 +494,7 @@ function screenSettings() {
     : pushCard();
   const connect = demo.active ? '' : section('つながり', '<div class="card stack">'
     + '<p class="sm">' + esc(withSan(nameOf('mother'))) + 'は' + (view.partner.joined ? 'つながっています。' : 'まだつながっていません。') + '</p>'
-    + (role() === 'student' ? '<button class="btn btn-secondary btn-block" data-action="new-code">相手の端末をつなぐコードを出す</button>' : '')
+    + (role() === 'student' ? '<button class="btn btn-secondary btn-block btn-3d" data-action="new-code">相手の端末をつなぐコードを出す</button>' : '')
     + '<button class="btn btn-text btn-block" data-action="unlink">この端末のつながりを解除する</button>'
     + '</div>');
 
@@ -511,7 +543,7 @@ function pushCard() {
   }
   return '<div class="card stack">'
     + '<p class="sm">' + (p.subscribed ? '通知が実際に届くかを確かめます。' : 'この端末で通知を受け取れるようにします。') + '</p>'
-    + '<button class="btn btn-primary btn-block" data-action="push-enable">' + (p.subscribed ? 'テスト通知を送る' : '通知を受け取る') + '</button>'
+    + '<button class="btn btn-primary btn-block btn-3d" data-action="push-enable">' + (p.subscribed ? 'テスト通知を送る' : '通知を受け取る') + '</button>'
     + '</div>';
 }
 
@@ -524,12 +556,12 @@ function screenPair() {
 }
 
 function pairStart() {
-  return '<header class="topbar"><span class="spacer"></span><h1 class="title">費用メモ</h1><span class="spacer"></span></header>'
+  return '<header class="topbar"><h1 class="title">費用メモ</h1></header>'
     + '<main class="main bigpad">'
     + '<p class="onboard">言いそびれたものが埋もれないための、ふたりのメモです。</p>'
     + '<div class="stack">'
-    + '<button class="btn btn-primary btn-block" data-action="pair-mode" data-mode="create">はじめる(受け取る側)</button>'
-    + '<button class="btn btn-secondary btn-block" data-action="pair-mode" data-mode="join">コードでつながる</button>'
+    + '<button class="btn btn-primary btn-block btn-3d" data-action="pair-mode" data-mode="create">はじめる(受け取る側)</button>'
+    + '<button class="btn btn-secondary btn-block btn-3d" data-action="pair-mode" data-mode="join">コードでつながる</button>'
     + '</div>'
     + '<p class="muted sm">受け取る側の人が「はじめる」を押してコードを出し、渡す側の人がそのコードでつながります。</p>'
     + '<hr class="divider">'
@@ -538,14 +570,14 @@ function pairStart() {
 }
 
 function pairCreate() {
-  return '<header class="topbar"><button class="btn-icon" data-action="pair-mode" data-mode="" aria-label="戻る">' + ICON.back + '</button><h1 class="title">はじめる</h1><span class="spacer"></span></header>'
+  return '<header class="topbar"><button class="btn-icon" data-action="pair-mode" data-mode="" aria-label="戻る">' + ICON.back + '</button><h1 class="title">はじめる</h1></header>'
     + '<main class="main bigpad">'
     + '<div class="field"><label for="p-student">あなた(受け取る側)の呼び名</label>'
     + '<input class="input" id="p-student" name="pairStudent" type="text" value="' + esc(pairing.studentName) + '" placeholder="例:ゆうき" autocomplete="off"></div>'
     + '<div class="field"><label for="p-mother">相手(渡す側)の呼び名</label>'
     + '<input class="input" id="p-mother" name="pairMother" type="text" value="' + esc(pairing.motherName) + '" placeholder="例:お母さん" autocomplete="off"></div>'
     + '<div class="err">' + esc(pairing.error) + '</div>'
-    + '<button class="btn btn-primary btn-block" data-action="pair-create"' + (pairing.busy ? ' disabled' : '') + '>コードを出す</button>'
+    + '<button class="btn btn-primary btn-block btn-3d" data-action="pair-create"' + (pairing.busy ? ' disabled' : '') + '>コードを出す</button>'
     + '</main>';
 }
 
@@ -562,18 +594,18 @@ function pairShowCode() {
     + '<div class="step-row"><span class="n">3</span><span class="body"><strong>その端末で通知の準備までやってしまう</strong>iPhone はホーム画面に追加しないと通知が届きません。あなたが代わりに操作してあげてください。</span></div>'
     + '<div class="step-row"><span class="n">4</span><span class="body"><strong>テスト通知が鳴るのを本人に見てもらう</strong>鳴るまでは、通知は届いていません。</span></div>'
     + '</div>'
-    + '<button class="btn btn-secondary btn-block" data-action="pair-done">つながったか確かめる</button>'
+    + '<button class="btn btn-secondary btn-block btn-3d" data-action="pair-done">つながったか確かめる</button>'
     + '</div></main>';
 }
 
 function pairJoin() {
-  return '<header class="topbar"><button class="btn-icon" data-action="pair-mode" data-mode="" aria-label="戻る">' + ICON.back + '</button><h1 class="title">コードでつながる</h1><span class="spacer"></span></header>'
+  return '<header class="topbar"><button class="btn-icon" data-action="pair-mode" data-mode="" aria-label="戻る">' + ICON.back + '</button><h1 class="title">コードでつながる</h1></header>'
     + '<main class="main bigpad">'
     + '<div class="field"><label for="p-code">6文字のコード</label>'
     + '<input class="input" id="p-code" name="pairCode" type="text" inputmode="latin" autocapitalize="characters" autocomplete="off"'
     + ' maxlength="6" value="' + esc(pairing.input) + '" style="font-size:2rem;text-align:center;letter-spacing:0.2em;min-height:64px"></div>'
     + '<div class="err">' + esc(pairing.error) + '</div>'
-    + '<button class="btn btn-primary btn-block" data-action="pair-join"' + (pairing.busy ? ' disabled' : '') + '>つながる</button>'
+    + '<button class="btn btn-primary btn-block btn-3d" data-action="pair-join"' + (pairing.busy ? ' disabled' : '') + '>つながる</button>'
     + '</main>';
 }
 
@@ -594,6 +626,8 @@ function render() {
   else if (screen.name === 'history') html = screenHistory();
   else if (screen.name === 'settings') html = screenSettings();
   else html = screenHome();
+  // 渡す側だけ見た目を一段落ち着かせる。判定は CSS 側の [data-side] で行う。
+  $('#app').dataset.side = view ? role() : 'student';
   $('#app').innerHTML = html;
   renderOverlay();
 }
@@ -606,7 +640,7 @@ function renderOverlay() {
     + '<h2 id="sheet-title">' + esc(sheet.title) + '</h2>'
     + '<p class="sm muted">' + esc(sheet.body) + '</p>'
     + '<div class="actions">'
-    + '<button class="btn btn-secondary btn-block" data-action="sheet-confirm">' + esc(sheet.confirmLabel) + '</button>'
+    + '<button class="btn btn-secondary btn-block btn-3d" data-action="sheet-confirm">' + esc(sheet.confirmLabel) + '</button>'
     + '<button class="btn btn-text btn-block" data-action="sheet-cancel">戻る</button>'
     + '</div></div></div>';
   o.querySelector('[data-action="sheet-confirm"]').focus();

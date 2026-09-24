@@ -111,10 +111,12 @@ try {
   ok(await student.has('通知が届かない状態です'), '相手に通知が届かないことが常時見えている');
   await student.shot('04-student-home');
 
+  let first = true;
   for (const [amount, title] of [['4500', '食費(今週分)'], ['1980', '日用品'], ['890', 'プリンター用紙']]) {
     await student.click('メモしておく');
     await student.type('input[name="amount"]', amount);
     await student.type('input[name="title"]', title);
+    if (first) { await student.shot('04b-add'); first = false; }
     await student.click('メモしておく');
     await sleep(400);
   }

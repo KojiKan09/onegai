@@ -155,24 +155,51 @@ item: { id, title, amount, note, monthly,
 
 ## ビジュアルトークン
 
+2026-09-24 に「みどりの案」へ差し替えた。Duolingo の見た目から**外装だけ**を借りている:
+白地・丸み・太字・大きい文字・少ない情報量・厚い余白・下端に厚みのある押せそうなボタン・
+アイコンでの情報伝達・カード形式・役割の明確な3タブ・「次に押す場所」が1画面に1つだけ大きい。
+
+**借りなかったもの**: 連続記録、炎、バッジ、称号、通知での呼び戻し。
+あれは行動を駆動する本体だが、このアプリは渡す側への呼び出しを全面的に禁じているので持ち込まない。
+その結果、**画面に出る一番大きい数字は「送る件数」であって合計金額ではない**。
+
 | role | Light | Dark |
 |---|---|---|
-| bg | #F7F5F1 | #161513 |
-| surface | #FFFFFF | #1F1D1A |
-| surface-raised | #FBFAF8 | #2A2723 |
-| text | #1F1D1A | #EDE9E2 |
-| muted | #6B665E | #A39D93 |
-| border | #E4DFD7 | #3A362F |
-| accent | #3D5A4C | #8FB3A0 |
-| accent-soft | #E6EDE8 | #263B31 |
-| positive / 地 | #2F6B4F / #E3EFE7 | #7FBF9A / #23352B |
-| attention / 地 | #7A5314 / #F5EAD6 | #D9A85A / #3A2E1A |
-| rest / 地 | #6B665E / #EEEBE6 | #A39D93 / #2E2B27 |
+| bg / surface | #FFFFFF / #FFFFFF | #101613 / #18211C |
+| surface-raised | #F2F5F3 | #202B24 |
+| text | #1B2B22 | #E8EFE9 |
+| muted | #5A6B61 | #9FB0A5 |
+| border / edge | #E3E8E5 / #D6DEDA | #2C3A32 / #2C3A32 |
+| accent(主ボタンの地) | #1E8038 | #4FBF6E |
+| accent-edge(3Dの下端) | #14562A | #2E7A46 |
+| accent-soft / accent-ink | #E8F6EC / #1B7434 | #1B3324 / #7FD79A |
+| on-accent | #FFFFFF | #0C1A10 |
+| positive / 地 | #1B7434 / #E8F6EC | #7FD79A / #1B3324 |
+| attention / 地 | #8A5A12 / #FBF0DA | #E0B05C / #33280F |
+| rest / 地 | #5A6B61 / #F2F5F3 | #9FB0A5 / #202B24 |
 
 - 危険色(赤)はトークン自体を定義しない。
-- タイポ: 0.75 / 0.875 / 1 / 1.125 / 1.375 / 1.75 rem、line-height 1.6、weight 400/500 のみ。金額は tabular-nums。
-- アイコン: chevron / plus / check の3種のみ。モーション 150ms、シート 200ms、`prefers-reduced-motion` で無効。
-- 寸法: 角丸 8、タップ 44、画面左右 24、max-width 560。
+- コントラスト: 白 on #1E8038 = 5.0:1、#1E8038 on 白 = 5.0:1、#5A6B61 on 白 = 5.6:1。
+  状態は色だけに意味を持たせず、必ず語(返事まち / 受け渡し待ち / 完了)を併記する。
+- 書体: M PLUS Rounded 1c。weight は 500 / 700 / 800 の3段。
+- タイポ: 0.8125 / 0.875 / 1 / 1.125 / 1.375 / 1.625 rem、金額は 1.375rem、
+  メモ入力の金額だけ 3.25rem。line-height 1.6。金額は tabular-nums。
+- アイコン: 操作3種(chevron / plus / check)、タブ3種(home / clock / gear)、
+  品目6種(book / basket / bottle / bus / cap / receipt)と毎月の calendar。
+  品目は保存データを増やさず、品目名の部分一致で引く(`ICON_WORDS`)。すべてインラインの線画 SVG。
+- モーション 150ms、シート 200ms、`prefers-reduced-motion` で無効。3Dボタンの沈み込みも同時に無効。
+- 寸法: 角丸はカード20 / ボタン16 / シート28、タップ44、下タブ84、画面左右20、max-width 560。
+
+### 渡す側は一段落ち着かせる
+
+この案の急所は、**「子どもっぽさ」が「大学生を子ども扱いしない」と正面衝突しうる**ことにある。
+母親が「お金のことをゲームにしている」と読んだ時点でこの案は失敗する。
+そこで骨格・書体・緑は共通のまま、`#app` の `data-side="mother"` で次だけ抑える:
+
+- 3Dの厚みは主要ボタン(全部そのまま渡す / 返事する)だけ。他の白ボタンは平らにする。
+- 品目アイコンの丸を 48 → 40、見出しを 26 → 22、品目名を 18 → 16 に落とす。
+
+友人本人と母親役に最初に確認すべきはここ。
 
 ## 実データ版の作り(実装済み)
 
